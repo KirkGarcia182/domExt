@@ -21,4 +21,21 @@ This projects contains 3 major contents
 
 ## Document extensions
 
+### ce(ElementName)
+Sugarcoat for `createElement()`
+
+### cdf()
+Sugarcoat for `createDocumentFragment()`
+
+## EventTarget extensions
+
+### on(EventName, CallbackFn, Options, Propagate)
+Sugarcoat for `addEventListener()` but added a Propagate argument
+
+The first 3 arguments is explained [Here](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener) and the last argument Propgate is a boolean value indicating whether you want the event to Propagate to other eventhandlers. A detailed explanation can be found [Here](https://medium.freecodecamp.org/a-simplified-explanation-of-event-propagation-in-javascript-f9de7961a06e)
+
+### trigger()
+
+asdf
+
 
