@@ -1,23 +1,21 @@
 # domExt - Extending DOM functions
-domExt extends the DOM prototype and has similarity with jQuery but without the wrapper
+domExt extends the DOM prototype and has similarity with jQuery but without the wrapper. The aim for this library is to help you in making rich [Web Components](https://developer.mozilla.org/en-US/docs/Web/Web_Components). Some of the content of this library is just **Sugarcoat** for the real thing just to make your coding life easier. While some functions where inspired by jQuery (I used jQuery since it's function naming is great and it makes sense).
 
-### Another jQuery wannabe?
+### Browser compatibility?
 
-No not really, jquery is just too big and has a lot of candies to offer. The aim for this library is to help you in making rich [Web Components](https://developer.mozilla.org/en-US/docs/Web/Web_Components). Most of the content of this library is just **Sugarcoat** for the real thing just to make your coding life easier. While some functions where inspired by jQuery (I used jQuery since it's function name is great and it makes sense).
+This library was made with ES6 rich features, and almost all browsers have supported ES6 already so I'm pretty sure it will work in most browsers, except for the ever elusive Internet Explorer
 
-### How about browser compatibility?
+### Other developers say that extending DOM or Native Objects is a bad idea
 
-Well, I'm sure it will work in Chrome and Chromium as these the are only browsers I have installed and I don't like using other browsers. Honestly these are the only browsers I need as I'm planning to use this library for web-based information system and desktop application using Electron.
+Yes, I do agree but it's not bad in all use-cases. This library only contains few functions that will help makine Web Components a lot easier.
 
 # Project Contents
 
-This projects contains multiple contents to help you manipulate the DOM in making your rich Web Components
+This projects contains 3 major contents
 
 - Extending `document` with a Sugarcoat syntax for `createElement` and `createDocumentFragment` - the reason for this is simple, I really hate typing those very long function names which I hope you do too.
-- Extending HTMLElement with basic DOM manipulation functions similar to jQuery like `addClass, attr, on, trigger, hasClass` and etc.
-- Extending EventTarget with a Sugarcoat syntax for `addEventListener` and `dispatchEvent` - hurray `on( )` and `trigger( )`
-- Extending Node with a Sugarcoat for looking up elements in the DOM Tree - the reason for this is that shadowDOM is not under the HTMLElement Tree but is in the DocumentFragment Tree
-- Extending Array with basic DOM manipulation functions similar to jQuery to manipulate multiple elements at once - Why Array you say? Because when using the Node Sugarcoat DOM Elements lookup function it will return an Array instead of HTMLCollection or NodeLists, this way its size will be much lesser as I don't need to extend both HTMLCollection and NodeLists prototypes.
+- Extending EventTarget with a Sugarcoat syntax for `addEventListener` and `dispatchEvent` - the reason for this is that the `window` object's prototype is EventTarget, without this you can't use ```window.on('click', e => console.log('Hellow World') );```
+- Extending Node with very useful jQuery like functions like `addClass(), attr(), on(), trigger(), css()` and etc.
 
-### Extending the Prototype of HTMLElement
+
 
