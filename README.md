@@ -17,5 +17,8 @@ This projects contains 3 major contents
 - Extending EventTarget with a Sugarcoat syntax for `addEventListener` and `dispatchEvent` - the reason for this is that the `window` object's prototype is EventTarget, without this you can't use ```window.on('click', e => console.log('Hellow World') );```
 - Extending Node with very useful jQuery like functions like `addClass(), attr(), on(), trigger(), css()` and etc.
 
+# API
+
+## Document extensions
 
 
