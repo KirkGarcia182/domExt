@@ -39,13 +39,32 @@ Sugarcoat for `addEventListener()` but added a Propagate argument
 
 The first 3 arguments (EventName, CallbackFn, Options) are explained [Here](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener)
 
-Propgate will indicate that you want the event to propagate to other eventhandlers. A detailed explanation can be found [Here](https://medium.freecodecamp.org/a-simplified-explanation-of-event-propagation-in-javascript-f9de7961a06e). Options default value is false but if you don't have any Options but want to access Propagate just use false in the Options argument. Example:
+Propgate will indicate that you want the event to propagate to other eventhandlers. A detailed explanation can be found [Here](https://medium.freecodecamp.org/a-simplified-explanation-of-event-propagation-in-javascript-f9de7961a06e). Options default value is false but if you don't have any Options but dont want the event to propagate just use false in the Options argument. Example:
 ```
   someElement.on('click', someFunction, false, false);
 ```
 
 ### trigger(EventName, CustomEvent, CustomEventDetail)
 
-asdf
+Sugarcoat for `dispatchedEvent()` but added two more arguments to support [Custom Events](https://developer.mozilla.org/en-US/docs/Web/API/CustomEvent/CustomEvent)
+
+- EventName - Type: String
+- CustomEvent - Type: Boolean, denotes if the Event being triggered is a Custom Event
+- CustomEventDetail - Type: Object, contains a detail property that is an event-dependent value associated with the event
+
+## Node extensions
+
+### addClass(classes)
+
+adds new class attributes to the element
+
+- classes - Type: String, multiple classes should be separated with white space
+
+Example:
+```
+  someElement.addClass('class1 class2 class3 class4 class5');
+```
+
+
 
 
