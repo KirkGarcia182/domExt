@@ -14,7 +14,7 @@ Yes, I do agree but it's not bad in all use-cases. This library only contains fe
 This projects contains 3 major contents
 
 - Extending `document` with a Sugarcoat syntax for `createElement` and `createDocumentFragment` - the reason for this is simple, I really hate typing those very long function names which I hope you do too.
-- Extending EventTarget with a Sugarcoat syntax for `addEventListener` and `dispatchEvent` - the reason for this is that the `window` object's prototype is EventTarget, without this you can't use ```window.on('click', e => console.log('Hellow World') );```
+- Extending EventTarget with a Sugarcoat syntax for `addEventListener` and `dispatchEvent` - the reason for this is that the `window` object's prototype is EventTarget, without this you can't use `window.on('click', someFunction )`
 - Extending Node with very useful jQuery like functions like `addClass(), attr(), on(), trigger(), css()` and etc.
 
 # API
@@ -32,9 +32,19 @@ Sugarcoat for `createDocumentFragment()`
 ### on(EventName, CallbackFn, Options, Propagate)
 Sugarcoat for `addEventListener()` but added a Propagate argument
 
-The first 3 arguments is explained [Here](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener) and the last argument Propgate is a boolean value indicating whether you want the event to Propagate to other eventhandlers. A detailed explanation can be found [Here](https://medium.freecodecamp.org/a-simplified-explanation-of-event-propagation-in-javascript-f9de7961a06e)
+- EventName - Type: String
+- CallbackFn - Type: Function
+- Options - Type: Boolean or Object, Default Value is False
+- Propagate - Type: Boolean, Default Value: True
 
-### trigger()
+The first 3 arguments (EventName, CallbackFn, Options) are explained [Here](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener)
+
+Propgate will indicate that you want the event to propagate to other eventhandlers. A detailed explanation can be found [Here](https://medium.freecodecamp.org/a-simplified-explanation-of-event-propagation-in-javascript-f9de7961a06e). Options default value is false but if you don't have any Options but want to access Propagate just use false in the Options argument. Example:
+```
+  someElement.on('click', someFunction, false, false);
+```
+
+### trigger(EventName, CustomEvent, CustomEventDetail)
 
 asdf
 
