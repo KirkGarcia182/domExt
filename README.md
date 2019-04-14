@@ -1,4 +1,4 @@
-# domExt - Extending DOM functions [![Build Status](https://travis-ci.com/username/projectname.svg?branch=master)](https://travis-ci.com/username/projectname)
+# domExt - Extending DOM functions 
 domExt extends the DOM prototype and has similarity with jQuery but without the wrapper. The aim for this library is to help you in making rich [Web Components](https://developer.mozilla.org/en-US/docs/Web/Web_Components). Some of the content of this library is just **Sugarcoat** for the real thing just to make your coding life easier. While some functions where inspired by jQuery (I used jQuery since it's function naming is great and it makes sense).
 
 ### Browser compatibility?
