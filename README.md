@@ -30,7 +30,7 @@ Sugarcoat for `createDocumentFragment()`
 ## EventTarget extensions
 
 ### on(EventName, CallbackFn, Options, Propagate)
-Sugarcoat for `addEventListener()` but added a Propagate argument
+Sugarcoat for `addEventListener()` but added an optional Propagate argument
 
 - EventName - Type: String
 - CallbackFn - Type: Function
@@ -56,15 +56,19 @@ Sugarcoat for `dispatchedEvent()` but added two more arguments to support [Custo
 
 ### addClass(classes)
 
-adds new class attributes to the element
-
-- classes - Type: String, multiple classes should be separated with white space
+adds a new class attributes to the element, multiple classes should be separated with white space
 
 Example:
 ```
   someElement.addClass('class1 class2 class3 class4 class5');
 ```
 
+### appendTo(element)
 
+the current element is appended to the element passed in the argument
+
+- 
+
+## 
 
 
