@@ -1,9 +1,48 @@
 !function(win) {
 	'use strict';
+	
+	/* 	Prototype replacement variables
+		Example:
+			let getElementById = 'getElementById';
+			let element = document[getElementById]('idHere');
+
+		This is usefull because when we minify the js file it will look like this
+
+		let a = 'getElementById';
+		let element = document[a]('idHere');
+
+		The syntax will be similar to PHP,
+		so if you're familiar with PHP I'm sure
+		you can read it easily
+	*/
+	const add = 'add',
+	call = 'call',
+	classList = 'classList',
+	contains = 'contains',
+	display = 'display',
+	innerHTML = 'innerHTML',
+	split = 'split',
+	style = 'style',
+	textContent = 'textContent',
+	getAttribute = 'getAttribute',
+	setAttribute = 'setAttribute',
+	getElementsByClassName = 'getElementsByClassName',
+	getElementById = 'getElementById',
+	querySelector = 'querySelector',
+	querySelectorAll = 'querySelectorAll',
+	prototype = 'prototype',
+	length = 'length',
 
 	// Notes will contain messages related to whether or not
 	// the function already exist natively
-	const Notes = [],
+	Notes = [],
+	doc = document,
+	elementVar = Element,
+	nodeVar = Node,
+	eventTargetVar = EventTarget,
+	documentVar = Document,
+	htmlCollectionVar = HTMLCollection,
+	nodeListVar = NodeList,
 
 	/* 
 		is Helper Functions to check variable types
@@ -28,7 +67,7 @@
 	isSymbol = v => toString.call(v) === '[object Symbol]',
 	isElement = v => v instanceof HTMLElement,
 	
-	HTMLElementPolyfill = {
+	ElementPolyfill = {
 		addClass(classes) {
 			let classArray = classes.split(' ');
 			this.classList.add(...classArray);
@@ -53,24 +92,9 @@
 				return this;
 			} 
 		},
-		byClass(selector){
-			return this.getElementsByClassName(selector);
-		},
-		byId(id){
-			return this.getElementById(id);
-		},
-		clone(deep = true){
-			return this.cloneNode(deep);
-		},
+		byClass: elementVar.getElementsByClassName,
 		changeClass(from, to) {
 			this.classList.replace(from, to);
-			return this;
-		},
-		child(){
-			console.log('aw');
-		},
-		clear() {
-			this.innerHTML = '';
 			return this;
 		},
 		css(styles, value) {
@@ -83,15 +107,15 @@
 			} 
 			return this;
 		},
-		data(datas, value){
-			if(isObject(datas)){
-				for(let name in datas){
-					this.attr(`data-${name}`, datas[name]);
+		data(dataName, value){
+			if(isObject(dataName)){
+				for(let name in dataName){
+					this.attr(`data-${name}`, dataName[name]);
 				}
-			}else if(isString(datas) && !isUndefined(value)){
-				this.attr(`data-${datas}`, value);
+			}else if(isString(dataName) && !isUndefined(value)){
+				this.attr(`data-${dataName}`, value);
 			}else{
-				this.attr(`data-${datas}`);
+				this.attr(`data-${dataName}`);
 			}
 			return this;
 		},
@@ -122,17 +146,11 @@
 				return this;
 			} 
 		},
-		on(eventName, callback, options = false, propagate = true) {
-			this.addEventListener(eventName, event =>{
-				if(!propagate) event.stopPropagation();
-				callback.call(this, event);
-			}, options);
-			return this;
-		},
 		parent(depth = 1){
 			let parent = this;
 			for(let x = 0; x < depth; x++){
 				parent = parent.parentNode;
+				x = parent === document ? depth : x;
 			}
 			return parent;
 		},
@@ -153,6 +171,9 @@
 				this.classList.remove(className);
 			} 
 			return this;
+		},
+		shadow(mode){
+			return this.attachShadow(mode);
 		},
 		show(display = 'inherit') {
 			this.style.display = display;
@@ -176,112 +197,156 @@
 			let cache = this.html().includes(text1) ? text2 : text1;
 			this.html(cache);
 			return this;
+		}
+	},
+
+	NodePolyfill = {
+		byId(id){
+			return this.getElementById(id);
 		},
-		trigger(eventName, custom = false, obj) {
-			let event = custom ? new CustomEvent(eventName, obj) : new Event(eventName);
-			this.dispatchEvent(event);
+		byClass(classNames){
+			return this.getElementsByClassName(classNames);
 		},
-		qsa(selector){
-			return [...this.querySelectorAll(selector)];
+		clone(deep = true){
+			return this.cloneNode(deep);
 		},
 		qs(selector){
 			return this.querySelector(selector);
 		},
-	},
-
-	NodePolyfill = {
-		byClass: HTMLElementPolyfill.byClass,
-		byId: HTMLElementPolyfill.byId,
-		clone: HTMLElementPolyfill.clone,
-		qsa: HTMLElementPolyfill.qsa,
-		qs: HTMLElementPolyfill.qs,
-		shadow(options){
-			return this.attachShadow(options);
+		qsa(selector){
+			return this.querySelectorAll(selector);
 		}
 	},
 
 	EventTargetPolyfill = {
-		on: HTMLElementPolyfill.on,
-		trigger: HTMLElementPolyfill.trigger
-	},
-
-	ArrayPolyfill = {
-        addClass(classes) {
-            for(let node of this) node.addClass(classes);
-            return this;
-        },
-        append(_node, deep = true) {
-            for(let node of this) node.append(_node, deep);
-            return this;
+		on(eventName, callback, options = false) {
+			this.addEventListener(eventName, callback, options);
+			return this;
 		},
-        attr(attributes, value) {
-            for(let node of this) node.attr(attributes, value);
-            return this;
-        },
-        changeClass(from, to) {
-            for(let node of this) node.changeClass(from, to);
-            return this;
-        },
-        clear() {
-            for(let node of this) node.innerHTML = '';
-            return this;
-        },
-        css(styles, value) {
-            for(let node of this) node.css(styles, value);
-            return this;
-        },
-        data(datas, value){
-            for(let node of this) node.data(datas, value);
-            return this;
-        },
-        hide() {
-            for(let node of this) node.style.display = 'none';
-            return this;
-        },
-        html(string) {
-            for(let node of this) node.innerHTML = string;
-            return this;
-        },
-        on(eventName, callback, options = false, propagate = true) {
-            let index = 0;
-            for(let node of this) {
-                node.on(eventName, callback.bind(node, index), options, propagate);
-                index++;
-            }
-            return this;
-        },
-        removeAttr(attributes) {
-            for(let node of this) node.removeAttr(attributes);
-            return this;
-        },
-        removeClass(classes) {
-            for(let node of this) node.removeClass(classes);
-            return this;
-        },
-        show(display = 'inherit') {
-            for(let node of this) node.style.display = display;
-            return this;
-        }
+		trigger(eventName, custom = false, obj) {
+			let event = custom ? new CustomEvent(eventName, obj) : new Event(eventName);
+			this.dispatchEvent(event);
+		}
 	},
 
 	DocumentPolyfill = {
-		ce(selector, obj = {}) { return document.createElement(selector, obj); },
-		cdf() { return document.createDocumentFragment(); },
-		id(selector) { return document.getElementById(selector); },
-		cn(selector) { return document.getElementsByClassName(selector); },
-		//qs(selector) { return document.querySelector(selector); },
-		//qsa(selector) { return document.querySelectorAll(selector); },
+		cdf: doc.createDocumentFragment,
+		ce: doc.createElement
+	},
+
+	HTMLCollectionAndNodeListPolyfill = {
+        addClass(classes) {
+			let cache = [...this];
+            for(let node of cache) {
+				node.addClass(classes);
+			}
+            return this;
+        },
+        append() {
+			let cache = [...this],
+			args = [...arguments];
+			
+            for(let currentNode of cache) {
+				for(let nodeToBeAppended of args){
+					currentNode.append(nodeToBeAppended.clone());
+				}
+			}
+            return this;
+		},
+		appendTo(_node, cloneIt){
+			let cache = [...this];
+			for(let node of cache){
+				_node.append(cloneIt ? node.clone() : node);
+			}
+            return this;
+		},
+        attr(attributes, value) {
+			let cache = [...this];
+            for(let node of cache) {
+				node.attr(attributes, value);
+			}
+            return this;
+        },
+        changeClass(from, to) {
+			let cache = [...this];
+            for(let node of cache) {
+				node.changeClass(from, to);
+			}
+            return this;
+        },
+        css(styles, value) {
+			let cache = [...this];
+            for(let node of cache) {
+				node.css(styles, value);
+			}
+            return this;
+        },
+        hide() {
+			let cache = [...this];
+            for(let node of cache) {
+				node.hide();
+			}
+            return this;
+        },
+        on(eventName, callback, options = false) {
+			let len = this.length;
+			for(let index=0; index<len; index++){
+				this[index].addEventListener(eventName, event => {
+					callback.apply(null, [event, index]);
+				}, options);
+			}
+            return this;
+		},
+		prepend(){
+			let cache = [...this],
+			args = [...arguments];
+			
+            for(let currentNode of cache) {
+				for(let nodeToBePrepended of args){
+					currentNode.prepend(nodeToBePrepended.clone());
+				}
+			}
+            return this;
+		},
+		prependTo(_node, cloneIt){
+			let cache = [...this];
+			for(let node of cache){
+				_node.prepend(cloneIt ? node.clone() : node);
+			}
+            return this;
+		},
+        removeAttr(attributes) {
+			let cache = [...this];
+            for(let node of cache) {
+				node.removeAttr(attributes);
+			}
+            return this;
+        },
+        removeClass(classes) {
+			let cache = [...this];
+            for(let node of cache) {
+				node.removeClass(classes);
+			}
+            return this;
+        },
+        show(display = 'inherit') {
+			let cache = [...this];
+            for(let node of cache) {
+				node.show(display);
+			}
+            return this;
+        }
 	};
 
 	/*
-		Loop through HTMLElementPolyfill and add it's properties
-		to HTMLElement prototype
+		Loop through ElementPolyfill and add it's properties
+		to Element prototype
 	*/
-	for(let prop in HTMLElementPolyfill) {
-		if(isUndefined(HTMLElement.prototype[prop])) {
-			HTMLElement.prototype[prop] = HTMLElementPolyfill[prop];
+	for(let prop in ElementPolyfill){
+		if(isUndefined(elementVar.prototype[prop])) {
+			elementVar.prototype[prop] = ElementPolyfill[prop];
 		} else {
-			Notes.push(`HTMLElement ${prop}() already exist!`);
+			Notes.push(`Element ${prop}() already exist!`);
 		}
 	}
 
@@ -290,8 +355,8 @@
 		to Node prototype
 	*/
 	for(let prop in NodePolyfill){
-		if(isUndefined(Node.prototype[prop])) {
-			Node.prototype[prop] = NodePolyfill[prop];
+		if(isUndefined(nodeVar.prototype[prop])) {
+			nodeVar.prototype[prop] = NodePolyfill[prop];
 		} else {
 			Notes.push(`Node ${prop}() already exist!`);
 		}
@@ -302,23 +367,11 @@
 		to EventTarget prototype
 	*/
 	for(let prop in EventTargetPolyfill){
-		if(isUndefined(EventTarget.prototype[prop])) {
-			EventTarget.prototype[prop] = EventTargetPolyfill[prop];
+		if(isUndefined(eventTargetVar.prototype[prop])) {
+			eventTargetVar.prototype[prop] = EventTargetPolyfill[prop];
 		} else {
 			Notes.push(`EventTarget ${prop}() already exist!`);
 		}
-	}
-
-	/*
-		Loop through ArrayPolyfill and add it's properties
-		to Array prototype
-	*/
-	for(let prop in ArrayPolyfill) {
-		if(isUndefined(Array.prototype[prop])) {
-			Array.prototype[prop] = ArrayPolyfill[prop];
-		} else {
-			Notes.push(`Array ${prop}() already exist!`);
-		} 
 	}
 
 	/*
@@ -331,6 +384,24 @@
 		} else {
 			Notes.push(`Document ${prop}() already exist!`);
 		} 
+	}
+
+	/*
+		Loop through HTMLCollectionAndNodeListPolyfill and add it's properties
+		to HTMLCollection and NodeList prototype
+	*/
+	for(let prop in HTMLCollectionAndNodeListPolyfill) {
+		if(isUndefined(htmlCollectionVar.prototype[prop])) {
+			htmlCollectionVar.prototype[prop] = HTMLCollectionAndNodeListPolyfill[prop];
+		} else {
+			Notes.push(`HTMLCollection ${prop}() already exist!`);
+		}
+
+		if(isUndefined(nodeListVar.prototype[prop])) {
+			nodeListVar.prototype[prop] = HTMLCollectionAndNodeListPolyfill[prop];
+		} else {
+			Notes.push(`NodeList ${prop}() already exist!`);
+		}
 	}
 
 	if(Notes.length > 0) console.log(Notes);
