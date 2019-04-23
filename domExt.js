@@ -1,41 +1,9 @@
 !function(win) {
 	'use strict';
-	
-	/* 	Prototype replacement variables
-		Example:
-			let getElementById = 'getElementById';
-			let element = document[getElementById]('idHere');
-
-		This is usefull because when we minify the js file it will look like this
-
-		let a = 'getElementById';
-		let element = document[a]('idHere');
-
-		The syntax will be similar to PHP,
-		so if you're familiar with PHP I'm sure
-		you can read it easily
-	*/
-	const add = 'add',
-	call = 'call',
-	classList = 'classList',
-	contains = 'contains',
-	display = 'display',
-	innerHTML = 'innerHTML',
-	split = 'split',
-	style = 'style',
-	textContent = 'textContent',
-	getAttribute = 'getAttribute',
-	setAttribute = 'setAttribute',
-	getElementsByClassName = 'getElementsByClassName',
-	getElementById = 'getElementById',
-	querySelector = 'querySelector',
-	querySelectorAll = 'querySelectorAll',
-	prototype = 'prototype',
-	length = 'length',
 
 	// Notes will contain messages related to whether or not
 	// the function already exist natively
-	Notes = [],
+	let Notes = [],
 	doc = document,
 	elementVar = Element,
 	nodeVar = Node,
@@ -47,25 +15,12 @@
 	/* 
 		is Helper Functions to check variable types
 		putting it all here is okay as to make the library
-		dependency free, not to mention all the unused functions
-		or variables will be erased once it's been compressed
-		using jscompress
+		dependency free
 	*/
 	toString = Object.prototype.toString,
 	isUndefined = v => toString.call(v) === '[object Undefined]',
 	isString = v => toString.call(v) === '[object String]',
-	isNumber = v => toString.call(v) === '[object Number]',
-	isNumeric = v => numericRegex.test(v),
-	isAlphaNumeric = v => alphaNumericRegex.test(v),
-	isNan = v => isNaN(v),
-	isArray = v => Array.isArray(v),
-	isBool = v => toString.call(v) === '[object Boolean]',
-	isFunction = v => toString.call(v) === '[object Function]',
 	isObject = v => toString.call(v) === '[object Object]',
-	isMap = v => toString.call(v) === '[object Map]',
-	isSet = v => toString.call(v) === '[object Set]',
-	isSymbol = v => toString.call(v) === '[object Symbol]',
-	isElement = v => v instanceof HTMLElement,
 	
 	ElementPolyfill = {
 		addClass(classes) {
