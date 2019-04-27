@@ -1,3 +1,8 @@
+/*! 
+   Author: Kirk Garcia
+   License: MIT
+   GitHub: https://github.com/KirkGarcia182/domExt,
+*/
 !function(win) {
 	'use strict';
 
