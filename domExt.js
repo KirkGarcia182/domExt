@@ -1,7 +1,7 @@
 /*! 
    Author: Kirk Garcia
    License: MIT
-   GitHub: https://github.com/KirkGarcia182/domExt,
+   GitHub: https://github.com/KirkGarcia182/domExtend,
 */
 !function(win) {
 	'use strict';
