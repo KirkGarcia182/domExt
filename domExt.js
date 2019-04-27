@@ -1,27 +1,23 @@
-/*! 
-   Author: Kirk Garcia
-   License: MIT
-   GitHub: https://github.com/KirkGarcia182/domExt,
-*/
-
 !function(win) {
 	'use strict';
 
 	// Notes will contain messages related to whether or not
 	// the function already exist natively
-	let Notes = [],
+	const Notes = [],
 	doc = document,
-	elementVar = Element,
-	nodeVar = Node,
-	eventTargetVar = EventTarget,
-	documentVar = Document,
-	htmlCollectionVar = HTMLCollection,
-	nodeListVar = NodeList,
+	$element = Element,
+	$node = Node,
+	$eventTarget = EventTarget,
+	$document = Document,
+	$htmlCollection = HTMLCollection,
+	$nodeList = NodeList,
 
 	/* 
 		is Helper Functions to check variable types
 		putting it all here is okay as to make the library
-		dependency free
+		dependency free, not to mention all the unused functions
+		or variables will be erased once it's been compressed
+		using jscompress
 	*/
 	toString = Object.prototype.toString,
 	isUndefined = v => toString.call(v) === '[object Undefined]',
@@ -53,7 +49,6 @@
 				return this;
 			} 
 		},
-		byClass: elementVar.getElementsByClassName,
 		changeClass(from, to) {
 			this.classList.replace(from, to);
 			return this;
@@ -68,31 +63,20 @@
 			} 
 			return this;
 		},
-		data(dataName, value){
-			if(isObject(dataName)){
-				for(let name in dataName){
-					this.attr(`data-${name}`, dataName[name]);
-				}
-			}else if(isString(dataName) && !isUndefined(value)){
-				this.attr(`data-${dataName}`, value);
-			}else{
-				this.attr(`data-${dataName}`);
-			}
-			return this;
-		},
-		hasClass(classes, option = 'any') {
-			let flag = false,
+		hasClass(classes, any = true) {
+			let flag = any ? false : true,
 			classArray = classes.split(' ');
-			if(option === 'any') {
+			if(any) {
 				for(let className of classArray) {
 					if(flag) break;
 					flag = this.classList.contains(className) ? true : false;
 				} 
-			} else if(option === 'all') {
-				// reserve all option when needed
 			} else {
-				throw new Error('Unknown option value.');
-			} 
+				for(let className of classArray){
+					if(!flag) break;
+					flag = this.classList.contains(className) ? true : false;
+				}
+			}
 			return flag;
 		},
 		hide() {
@@ -192,7 +176,12 @@
 
 	DocumentPolyfill = {
 		cdf: doc.createDocumentFragment,
-		ce: doc.createElement
+		ce: doc.createElement,
+		ct(text){
+			let template = this.ce('template');
+			template.innerHTML = text[0];
+			return template;
+		}
 	},
 
 	HTMLCollectionAndNodeListPolyfill = {
@@ -304,8 +293,8 @@
 		to Element prototype
 	*/
 	for(let prop in ElementPolyfill){
-		if(isUndefined(elementVar.prototype[prop])) {
-			elementVar.prototype[prop] = ElementPolyfill[prop];
+		if(isUndefined($element.prototype[prop])) {
+			$element.prototype[prop] = ElementPolyfill[prop];
 		} else {
 			Notes.push(`Element ${prop}() already exist!`);
 		}
@@ -316,8 +305,8 @@
 		to Node prototype
 	*/
 	for(let prop in NodePolyfill){
-		if(isUndefined(nodeVar.prototype[prop])) {
-			nodeVar.prototype[prop] = NodePolyfill[prop];
+		if(isUndefined($node.prototype[prop])) {
+			$node.prototype[prop] = NodePolyfill[prop];
 		} else {
 			Notes.push(`Node ${prop}() already exist!`);
 		}
@@ -328,8 +317,8 @@
 		to EventTarget prototype
 	*/
 	for(let prop in EventTargetPolyfill){
-		if(isUndefined(eventTargetVar.prototype[prop])) {
-			eventTargetVar.prototype[prop] = EventTargetPolyfill[prop];
+		if(isUndefined($eventTarget.prototype[prop])) {
+			$eventTarget.prototype[prop] = EventTargetPolyfill[prop];
 		} else {
 			Notes.push(`EventTarget ${prop}() already exist!`);
 		}
@@ -352,14 +341,14 @@
 		to HTMLCollection and NodeList prototype
 	*/
 	for(let prop in HTMLCollectionAndNodeListPolyfill) {
-		if(isUndefined(htmlCollectionVar.prototype[prop])) {
-			htmlCollectionVar.prototype[prop] = HTMLCollectionAndNodeListPolyfill[prop];
+		if(isUndefined($htmlCollection.prototype[prop])) {
+			$htmlCollection.prototype[prop] = HTMLCollectionAndNodeListPolyfill[prop];
 		} else {
 			Notes.push(`HTMLCollection ${prop}() already exist!`);
 		}
 
-		if(isUndefined(nodeListVar.prototype[prop])) {
-			nodeListVar.prototype[prop] = HTMLCollectionAndNodeListPolyfill[prop];
+		if(isUndefined($nodeList.prototype[prop])) {
+			$nodeList.prototype[prop] = HTMLCollectionAndNodeListPolyfill[prop];
 		} else {
 			Notes.push(`NodeList ${prop}() already exist!`);
 		}
@@ -368,5 +357,4 @@
 	if(Notes.length > 0) console.log(Notes);
 
 	window.$ = document;
-	window.log = function(message){ console.log(message); }
 } (window);
