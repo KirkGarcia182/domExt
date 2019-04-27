@@ -10,13 +10,7 @@
 	// the function already exist natively
 	const Notes = [],
 	doc = document,
-	$element = Element,
-	$node = Node,
-	$eventTarget = EventTarget,
-	$document = Document,
-	$htmlCollection = HTMLCollection,
-	$nodeList = NodeList,
-
+	alreadyExists = '() already exists!',
 	/* 
 		is Helper Functions to check variable types
 		putting it all here is okay as to make the library
@@ -291,75 +285,44 @@
 			}
             return this;
         }
-	};
+	},
 
+	nameList = ['Element', 'Node', 'EventTarget', 'Document', 'HTMLCollection', 'NodeList'],
+	objectList = [Element, Node, EventTarget, Document, HTMLCollection, NodeList],
+	functionList = [
+		ElementPolyfill,
+		NodePolyfill,
+		EventTargetPolyfill,
+		DocumentPolyfill,
+		HTMLCollectionAndNodeListPolyfill,
+		HTMLCollectionAndNodeListPolyfill
+	];
+	
 	/*
-		Loop through ElementPolyfill and add it's properties
-		to Element prototype
+		Loopthrough each function list and extend the objectLists prototypes if function
+		did not exist.
 	*/
-	for(let prop in ElementPolyfill){
-		if(isUndefined($element.prototype[prop])) {
-			$element.prototype[prop] = ElementPolyfill[prop];
-		} else {
-			Notes.push(`Element ${prop}() already exist!`);
-		}
-	}
+	for(let index in functionList){
 
-	/*
-		Loop through NodePolyfill and add it's properties
-		to Node prototype
-	*/
-	for(let prop in NodePolyfill){
-		if(isUndefined($node.prototype[prop])) {
-			$node.prototype[prop] = NodePolyfill[prop];
-		} else {
-			Notes.push(`Node ${prop}() already exist!`);
-		}
-	}
+		for(let prop in functionList[index]){
 
-	/*
-		Loop through EventTargetPolyfill and add it's properties
-		to EventTarget prototype
-	*/
-	for(let prop in EventTargetPolyfill){
-		if(isUndefined($eventTarget.prototype[prop])) {
-			$eventTarget.prototype[prop] = EventTargetPolyfill[prop];
-		} else {
-			Notes.push(`EventTarget ${prop}() already exist!`);
-		}
-	}
+			if(isUndefined(objectList[index].prototype[prop])){
 
-	/*
-		Loop through ArrayPolyfill and add it's properties
-		to Array prototype
-	*/
-	for(let prop in DocumentPolyfill) {
-		if(isUndefined(Document.prototype[prop])) {
-			Document.prototype[prop] = DocumentPolyfill[prop];
-		} else {
-			Notes.push(`Document ${prop}() already exist!`);
-		} 
-	}
+				objectList[index].prototype[prop] = functionList[index][prop];
 
-	/*
-		Loop through HTMLCollectionAndNodeListPolyfill and add it's properties
-		to HTMLCollection and NodeList prototype
-	*/
-	for(let prop in HTMLCollectionAndNodeListPolyfill) {
-		if(isUndefined($htmlCollection.prototype[prop])) {
-			$htmlCollection.prototype[prop] = HTMLCollectionAndNodeListPolyfill[prop];
-		} else {
-			Notes.push(`HTMLCollection ${prop}() already exist!`);
+			}else{
+
+				Notes.push(`${nameList[index]} ${prop}${alreadyExists}`);
+
+			}
 		}
 
-		if(isUndefined($nodeList.prototype[prop])) {
-			$nodeList.prototype[prop] = HTMLCollectionAndNodeListPolyfill[prop];
-		} else {
-			Notes.push(`NodeList ${prop}() already exist!`);
-		}
 	}
 
 	if(Notes.length > 0) console.log(Notes);
 
-	window.$ = document;
+	win.$ = doc;
+	win.dce = (name, constructor, options) => {
+		customElements.define(name, constructor, options);
+	}
 } (window);
