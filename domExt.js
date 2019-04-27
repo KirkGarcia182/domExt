@@ -361,5 +361,8 @@
 
 	if(Notes.length > 0) console.log(Notes);
 
-	window.$ = document;
+	win.$ = doc;
+	win.dce = (name, constructor, options) => {
+		customElements.define(name, constructor, options);
+	}
 } (window);
