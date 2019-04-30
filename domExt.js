@@ -1,328 +1,240 @@
 /*! 
    Author: Kirk Garcia
    License: MIT
-   GitHub: https://github.com/KirkGarcia182/domExtend,
+   GitHub: https://github.com/KirkGarcia182/s-alert,
 */
-!function(win) {
-	'use strict';
+let template = $.ct`
+<style>
+    *{ box-sizing: border-box; }
 
-	// Notes will contain messages related to whether or not
-	// the function already exist natively
-	const Notes = [],
-	doc = document,
-	alreadyExists = '() already exists!',
-	/* 
-		is Helper Functions to check variable types
-		putting it all here is okay as to make the library
-		dependency free, not to mention all the unused functions
-		or variables will be erased once it's been compressed
-		using jscompress
-	*/
-	toString = Object.prototype.toString,
-	isUndefined = v => toString.call(v) === '[object Undefined]',
-	isString = v => toString.call(v) === '[object String]',
-	isObject = v => toString.call(v) === '[object Object]',
-	
-	ElementPolyfill = {
-		addClass(classes) {
-			let classArray = classes.split(' ');
-			this.classList.add(...classArray);
-			return this;
-		},
-		appendTo(_node){
-			_node.append(this);
-			return this;
-		},
-		attr(attributes, value) {
-			if(isUndefined(value) && isString(attributes)) {
-				return this.getAttribute(attributes);
-			} else {
-				if(isObject(attributes)) {
-					for(let attributeName in attributes) {
-						this.setAttribute(attributeName, attributes[attributeName]);
-						
-					} 
-				} else {
-					this.setAttribute(attributes, value);
-				} 
-				return this;
-			} 
-		},
-		changeClass(from, to) {
-			this.classList.replace(from, to);
-			return this;
-		},
-		css(styles, value) {
-			if(isObject(styles)) {
-				for(let name in styles) {
-					this.style[name] = styles[name];
-				} 
-			} else {
-				this.style[styles] = value;
-			} 
-			return this;
-		},
-		hasClass(classes, any = true) {
-			let flag = any ? false : true,
-			classArray = classes.split(' ');
-			if(any) {
-				for(let className of classArray) {
-					if(flag) break;
-					flag = this.classList.contains(className) ? true : false;
-				} 
-			} else {
-				for(let className of classArray){
-					if(!flag) break;
-					flag = this.classList.contains(className) ? true : false;
-				}
-			}
-			return flag;
-		},
-		hide() {
-			this.style.display = 'none';
-			return this;
-		},
-		html(string) {
-			if(isUndefined(string)) {
-				return this.innerHTML;
-			} else {
-				this.innerHTML = string;
-				return this;
-			} 
-		},
-		parent(depth = 1){
-			let parent = this;
-			for(let x = 0; x < depth; x++){
-				parent = parent.parentNode;
-				x = parent === document ? depth : x;
-			}
-			return parent;
-		},
-		prependTo(_node){
-			_node.prepend(this);
-			return this;
-		},
-		removeAttr(attributes) {
-			let attributeArray = attributes.split(' ');
-			for(let attributeName of attributeArray) {
-				this.removeAttribute(attributeName);
-			} 
-			return this;
-		},
-		removeClass(classes) {
-			let classArray = classes.split(' ');
-			for(let className of classArray) {
-				this.classList.remove(className);
-			} 
-			return this;
-		},
-		shadow(mode){
-			return this.attachShadow(mode);
-		},
-		show(display = 'inherit') {
-			this.style.display = display;
-			return this;
-		},
-		text(text){
-			if(isUndefined(text)){
-				return this.textContent;
-			}else{
-				this.textContent = text;
-				return this;
-			}
-		},
-		toggleClass(class1, class2){
-			let cache = this.hasClass(class1) ? class2 : class1;
-			this.removeClass(`${class1} ${class2}`);
-			this.addClass(cache);
-			return this;
-		},
-		toggleText(text1, text2){
-			let cache = this.html().includes(text1) ? text2 : text1;
-			this.html(cache);
-			return this;
-		}
-	},
+    .bar{
+        display: flex;
+        width: 5px;
+    }
 
-	NodePolyfill = {
-		byId(id){
-			return this.getElementById(id);
-		},
-		byClass(classNames){
-			return this.getElementsByClassName(classNames);
-		},
-		clone(deep = true){
-			return this.cloneNode(deep);
-		},
-		qs(selector){
-			return this.querySelector(selector);
-		},
-		qsa(selector){
-			return this.querySelectorAll(selector);
-		}
-	},
+    .wrapper{
+        display: flex;
+        flex-direction: column;
+        background-color: rgba(0,0,0,0.5);
+        color: var(--color);
+        flex-grow: 1;
+        max-width: 295px;
+    }
 
-	EventTargetPolyfill = {
-		on(eventName, callback, options = false) {
-			this.addEventListener(eventName, callback, options);
-			return this;
-		},
-		trigger(eventName, custom = false, obj) {
-			let event = custom ? new CustomEvent(eventName, obj) : new Event(eventName);
-			this.dispatchEvent(event);
-		}
-	},
+    .header{
+        display: flex;
+        flex-direction: row;
+        position: relative;
+    }
 
-	DocumentPolyfill = {
-		cdf: doc.createDocumentFragment,
-		ce: doc.createElement,
-		ct(text){
-			let template = this.ce('template');
-			template.innerHTML = text[0];
-			return template;
-		}
-	},
+    .name{
+        flex-grow: 1;
+        padding: 8px 16px 0px 16px;
+        font-size: calc(var(--font-size) + 2px);
+        font-weight: bold;
+        margin-right: 40px;
+    }
 
-	HTMLCollectionAndNodeListPolyfill = {
-        addClass(classes) {
-			let cache = [...this];
-            for(let node of cache) {
-				node.addClass(classes);
-			}
-            return this;
-        },
-        append() {
-			let cache = [...this],
-			args = [...arguments];
-			
-            for(let currentNode of cache) {
-				for(let nodeToBeAppended of args){
-					currentNode.append(nodeToBeAppended.clone());
-				}
-			}
-            return this;
-		},
-		appendTo(_node, cloneIt){
-			let cache = [...this];
-			for(let node of cache){
-				_node.append(cloneIt ? node.clone() : node);
-			}
-            return this;
-		},
-        attr(attributes, value) {
-			let cache = [...this];
-            for(let node of cache) {
-				node.attr(attributes, value);
-			}
-            return this;
-        },
-        changeClass(from, to) {
-			let cache = [...this];
-            for(let node of cache) {
-				node.changeClass(from, to);
-			}
-            return this;
-        },
-        css(styles, value) {
-			let cache = [...this];
-            for(let node of cache) {
-				node.css(styles, value);
-			}
-            return this;
-        },
-        hide() {
-			let cache = [...this];
-            for(let node of cache) {
-				node.hide();
-			}
-            return this;
-        },
-        on(eventName, callback, options = false) {
-			let len = this.length;
-			for(let index=0; index<len; index++){
-				this[index].addEventListener(eventName, event => {
-					callback.apply(null, [event, index]);
-				}, options);
-			}
-            return this;
-		},
-		prepend(){
-			let cache = [...this],
-			args = [...arguments];
-			
-            for(let currentNode of cache) {
-				for(let nodeToBePrepended of args){
-					currentNode.prepend(nodeToBePrepended.clone());
-				}
-			}
-            return this;
-		},
-		prependTo(_node, cloneIt){
-			let cache = [...this];
-			for(let node of cache){
-				_node.prepend(cloneIt ? node.clone() : node);
-			}
-            return this;
-		},
-        removeAttr(attributes) {
-			let cache = [...this];
-            for(let node of cache) {
-				node.removeAttr(attributes);
-			}
-            return this;
-        },
-        removeClass(classes) {
-			let cache = [...this];
-            for(let node of cache) {
-				node.removeClass(classes);
-			}
-            return this;
-        },
-        show(display = 'inherit') {
-			let cache = [...this];
-            for(let node of cache) {
-				node.show(display);
-			}
-            return this;
-        }
-	},
+    .close{
+        display: flex;
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        justify-content: center;
+        align-items: center;
+        top: 0;
+        right: 0;
+        font-size: calc(var(--font-size) + 5px);
+        cursor: pointer;
+    }
 
-	nameList = ['Element', 'Node', 'EventTarget', 'Document', 'HTMLCollection', 'NodeList'],
-	objectList = [Element, Node, EventTarget, Document, HTMLCollection, NodeList],
-	functionList = [
-		ElementPolyfill,
-		NodePolyfill,
-		EventTargetPolyfill,
-		DocumentPolyfill,
-		HTMLCollectionAndNodeListPolyfill,
-		HTMLCollectionAndNodeListPolyfill
-	];
-	
-	/*
-		Loopthrough each function list and extend the objectLists prototypes if function
-		did not exist.
-	*/
-	for(let index in functionList){
+    .close:hover{
+        color: black;
+    }
 
-		for(let prop in functionList[index]){
+    hr{
+        width: 95%;
+        border-radius: 50%;
+        border-color: var(--color);
+    }
 
-			if(isUndefined(objectList[index].prototype[prop])){
+    .message{
+        padding: 0px 16px 8px 16px;
+        text-align: justify;
+        font-size: calc(var(--font-size) - 1px);
+    }
 
-				objectList[index].prototype[prop] = functionList[index][prop];
+    .loading-bar{
+        height: 7px;
+        width: 100%;
+        background-color: rgba(255,255,255,0.5);
+        /*transition: all 10s linear;*/
+    }
 
-			}else{
+    .loading-bar .bar{
+        width: 100%;
+        height: inherit;
+        background-color: var(--bar-bgColor);
+    }
 
-				Notes.push(`${nameList[index]} ${prop}${alreadyExists}`);
+    :host {
+        --bgColor: silver;
+        --color: white;
+        --bar-bgColor: white;
 
-			}
-		}
+        display: flex;
+        flex-direction: row;
+        position: relative;
+        background-color: var(--bgColor);
+        color: var(--color);
+        margin-top: 5px;
+        opacity: 0;
+        transition: all 0.5s;
+        z-index: 500;
+    }
 
-	}
+    :host(.danger){ --bgColor: #ff1100; }
+    :host(.warning){ --bgColor: #ffe600; }
+    :host(.success){ --bgColor: #00ff08; }
+    :host(.info){ --bgColor: #008cff; }
+    :host(.remove){ opacity: 0; }
+    :host(.add){ opacity: 1;}
+</style>
 
-	if(Notes.length > 0) console.log(Notes);
+<div class="wrapper">
+    <div class="header">
+        <div class="name"></div>
+        <div class="close">&times;</div>
+    </div>
+    <hr>
+    <div class="message"></div>
+    <div class="loading-bar">
+        <div class="bar"></div>
+    </div>
+</div>
+<div class="bar"></div>
 
-	win.$ = doc;
-	win.dce = (name, constructor, options) => {
-		customElements.define(name, constructor, options);
-	}
-} (window);
+`;
+
+class SimpleAlert extends HTMLElement {
+
+    constructor() {
+        // Always super() or else it won't work
+        super();
+
+        let _this = this;
+
+        // Set up the root (shadowRoot)
+        _this.root = _this.shadow({ 'mode': 'open' });
+        _this.root.append(template.content.clone(true));
+
+        // set
+        _this.name = _this.root.qs('.name');
+        _this.message = _this.root.qs('.message');
+        _this.close = _this.root.qs('.close');
+        _this.loadingBar = _this.root.qs('.loading-bar .bar');
+        _this.hovering = false;
+        _this.animationID;
+
+        // Add click event on close button
+        _this.close.on('click', e => {
+            _this.changeClass('add','remove');
+            setTimeout(() => {
+                _this.remove();
+            },500);
+            cancelAnimationFrame(_this.animationID);
+        });
+
+        // Add mouseenter and mouseleave events to denote hovering
+        _this.on('mouseenter', e => _this.hovering = true);
+        _this.on('mouseleave', e => _this.hovering = false);
+    }
+
+    connectedCallback() {
+        let _this = this,
+        _class = _this._props.type,
+        type = `${_class.charAt(0).toUpperCase()}${_class.substring(1, _class.length)}`,
+        message = _this._props.message,
+        
+        time = parseInt(_this._props.time),
+        
+        then = Date.now(),
+        elapsedTime,
+        now,
+        widthDeduction;
+        
+        _this.name.html(type);
+        _this.message.html(message);
+        _this.addClass(`${_class} add`);
+
+        /*
+            Add a setTimeout to make the animation from the css work
+            also for some odd reason getting the offsetWidth of loadingBar
+            doesn't work as expected if placed outside of the setTimeout
+        */
+        setTimeout(() => {
+            _this.addClass(`${_class} add`);
+
+            let originalWidth = _this.loadingBar.offsetWidth,
+            width = originalWidth;
+
+            function update() {
+
+                now = Date.now();
+                elapsedTime = now - then;
+                /*
+                    Calculate widthDeduction, formula explanation:
+
+                    (elapsedTime / time) is to get what percentage
+                    of the time (which the user has given) is the 
+                    elapsedTime, which means if time = 10,000ms and
+                    elapsedTime = 18ms, then 18/10000 = 0.0018, multiply
+                    0.0018 to the originalWidth of the bar to get how
+                    much width we should deduct from the bar. The formula
+                    was made this way because each device has it's own frame rate
+                    and each update is not always consistent
+                */
+                widthDeduction = originalWidth * (elapsedTime / time);
+
+                /*
+                    When width falls below or equal to zero trigger a click
+                    to the close button
+                */
+                if(width <= 0) {
+                    _this.loadingBar.css('width', '0px');
+                    _this.close.trigger('click');
+                } else {
+                    /*
+                        If the user is not hovering over the alertbox
+                        it will pause the loading bar from moving
+                    */
+                    if(!_this.hovering) {
+                        width-=widthDeduction;
+                        _this.loadingBar.css('width', `${width}px`);
+                    }
+
+                    /*
+                        Continously update then because the pause will make the
+                        then and now far apart which will affect how we calculate
+                        the widthDeduction, not updating the then will cause the 
+                        width to suddenly jump because of the time gap
+                    */
+                    then = now;
+                    _this.animationID = requestAnimationFrame(update);
+                }
+            }
+
+            _this.animationID = requestAnimationFrame(update);
+
+        }, 1);
+
+    }
+
+    props(obj) {
+        let _this = this;
+        _this._props = obj;
+        return _this;
+    }
+}
+
+dce('s-alert', SimpleAlert);
